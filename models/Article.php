@@ -46,7 +46,12 @@ class Article extends Model{
     }
 
     public function toArray(){
-        return [$this->id, $this->name, $this->author, $this->description];
+        return [
+        'id' => $this->id,
+        'name' => $this->name,
+        'author' => $this->author,
+        'description' => $this->description,
+        ];
     }
     
 }

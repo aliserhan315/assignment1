@@ -59,6 +59,57 @@ class ArticleController extends BaseController{
         }
             
     }
+    public function createArticle(){
+        global $mysqli;
+        try{
+            if(!isset($_POST["name"]) || !isset($_POST["author"]) || !isset($_POST["description"])){
+                throw new Exception("Missing required fields.");
+            }
+
+            $data = [
+                "name" => $_POST["name"],
+                "author" => $_POST["author"],
+                "description" => $_POST["description"]
+            ];
+          $insertedId = Article::create($mysqli , $data );
+
+            $article = Article::find($mysqli,$insertedId);
+            echo $this->responseService->success_response($article->toArray());
+        }catch(Exception $e){
+            echo $this->responseService->error_response($e->getMessage());
+        }
+    }
+
+     public function updateArticle( ){
+        global $mysqli;
+        try{
+            if(!isset($_POST["id"]) || !isset($_POST["name"]) || !isset($_POST["author"]) || !isset($_POST["description"])){
+                throw new Exception("Missing required fields.");
+            }
+
+            $id = $_POST["id"];
+            $article = Article::find($mysqli, $id);
+            if (!$article) {
+                throw new Exception("Article not found.");
+            }
+               $data = [
+                "name" => $_POST["name"],
+                "author" => $_POST["author"],
+                "description" => $_POST["description"]
+            ];
+            
+            $updated = $article->update($mysqli, $data);
+
+            if ($updated) {
+                echo $this->responseService->success_response("Article updated successfully.");
+            } else {
+                echo $this->responseService->error_response("Failed to update article.");
+            }
+        } catch(Exception $e) {
+            echo $this->responseService->error_response($e->getMessage());
+        }
+    }
+
 }
 
 //To-Do:
