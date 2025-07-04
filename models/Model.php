@@ -35,7 +35,7 @@ abstract class Model{
     }
 
 
-    public static function delete($mysqli, $id) {
+    public static function delete(mysqli $mysqli, $id) {
          $sql = sprintf("DELETE FROM %s WHERE %s = ?", 
                         static::$table,static::$primary_key);
         
@@ -45,12 +45,53 @@ abstract class Model{
         return $stmt->affected_rows > 0;
     }
 
-    public static function deleteAll($mysqli) {
+    public static function deleteAll(mysqli $mysqli) {
         $sql = sprintf("DELETE FROM %s", static::$table);
         $stmt = $mysqli->prepare($sql);
         $stmt->execute();
         return $stmt->affected_rows >= 0;
     }
+
+
+    public static function create(mysqli $mysqli,array $data) {
+        $columns = array_keys($data);
+        $placeholders = array_fill(0, count($columns), "?");
+        $types = str_repeat("s", count($columns));
+        $sql = sprintf("INSERT INTO %s (%s) VALUES (%s)", 
+                        static::$table, 
+                        implode(", ", $columns), 
+                        implode(", ", $placeholders)
+                    );
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param($types, ...array_values($data));
+        $stmt->execute();
+        return $stmt->insert_id; 
+                }
+
+
+        public function update(mysqli $mysqli,array $data) {
+        $columns = array_keys($data);
+        $set = implode(", ", array_map(
+            fn($col) => "$col = ?", $columns)
+        );
+        $types = "";
+    foreach ($data as $value) {
+        $types .= is_int($value) ? "i" : (is_double($value) ? "d" : "s");
+    }
+    $types .= "i";
+        $sql = sprintf("UPDATE %s SET %s WHERE %s = ?", 
+                        static::$table, 
+                         $set, 
+                        static::$primary_key
+                    );
+        $stmt = $mysqli->prepare($sql);
+        $values = $this->{static::$primary_key};
+        $stmt->bind_param($types, ...$values);
+        $stmt->execute();
+        return $stmt->insert_id; 
+                }
+                
+
 
 
     //you have to continue with the same mindset
