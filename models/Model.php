@@ -34,6 +34,25 @@ abstract class Model{
         return $objects; //we are returning an array of objects!!!!!!!!
     }
 
+
+    public static function delete($mysqli, $id) {
+         $sql = sprintf("DELETE FROM %s WHERE %s = ?", 
+                        static::$table,static::$primary_key);
+        
+        $stmt = $mysqli->prepare($sql);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        return $stmt->affected_rows > 0;
+    }
+
+    public static function deleteAll($mysqli) {
+        $sql = sprintf("DELETE FROM %s", static::$table);
+        $stmt = $mysqli->prepare($sql);
+        $stmt->execute();
+        return $stmt->affected_rows >= 0;
+    }
+
+
     //you have to continue with the same mindset
     //Find a solution for sending the $mysqli everytime... 
     //Implement the following: 
