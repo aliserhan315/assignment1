@@ -4,27 +4,60 @@ require(__DIR__ . "/../models/Article.php");
 require(__DIR__ . "/../connection/connection.php");
 require(__DIR__ . "/../services/ArticleService.php");
 require(__DIR__ . "/../services/ResponseService.php");
+require(__DIR__ . "/BaseController.php");
 
-class ArticleController{
+class ArticleController extends BaseController{
     
     public function getAllArticles(){
         global $mysqli;
+       
+        try{
 
         if(!isset($_GET["id"])){
             $articles = Article::all($mysqli);
             $articles_array = ArticleService::articlesToArray($articles); 
-            echo ResponseService::success_response($articles_array);
+           
+            echo $this->responseService->success_response($articles_array);
             return;
         }
 
         $id = $_GET["id"];
         $article = Article::find($mysqli, $id)->toArray();
-        echo ResponseService::success_response($article);
-        return;
+   
+        echo $this->responseService->success_response($article);
+     
+    }catch(Exception $e){
+     
+        echo $this->responseService->error_response($e->getMessage());
     }
 
+       return;
+}
+
     public function deleteAllArticles(){
-        die("Deleting...");
+        global $mysqli;
+        try{
+            if(isset($_GET["id"])){
+               $id=$_GET["id"];
+               $deleted = Article::delete($mysqli, $id);
+                if ($deleted) {
+                echo $this->responseService->success_response("Article with ID {$id} deleted successfully.");
+            } else {
+                echo $this->responseService->error_response("Article not found.");
+            }
+            return;
+            }
+            $deleted = Article::deleteAll($mysqli);
+            if ($deleted) {
+                echo $this->responseService->success_response("All articles deleted successfully.");
+            } else {
+                echo $this->responseService->error_response("No articles found to delete.");
+            }
+
+        }catch(Exception $e){
+            echo $this->responseService->error_response($e->getMessage());
+        }
+            
     }
 }
 
