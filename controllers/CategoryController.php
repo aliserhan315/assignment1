@@ -70,6 +70,41 @@ class CategoryController extends BaseController {
         }
             
     }
+     public function updateCategory(){
+        global $mysqli;
 
+    try {
+        if (
+            !isset($_POST["id"]) ||
+            !isset($_POST["name"])
+        ) {
+            throw new Exception("Missing required fields.");
+        }
 
+        $id = $_POST["id"];
+        $category = Category::find($mysqli, $id);
+
+        if (!$category) {
+            throw new Exception("Category not found.");
+        }
+
+        $data = [
+            "name" => $_POST["name"]
+        ];
+
+        $updated = $category->update($mysqli, $data);
+        if ($updated) {
+            echo $this->responseService->success_response($category->toArray());
+        } else {
+            echo $this->responseService->error_response("Failed to update category.");
+        }
+
+     }catch (Exception $e) {
+        echo $this->responseService->error_response($e->getMessage());
+        return;
+    }
 }
+}
+
+
+
