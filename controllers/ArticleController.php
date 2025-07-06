@@ -17,18 +17,18 @@ class ArticleController extends BaseController{
             $articles = Article::all($mysqli);
             $articles_array = ArticleService::articlesToArray($articles); 
            
-            echo $this->responseService->success_response($articles_array);
+            echo $this->success_response($articles_array);
             return;
         }
 
         $id = $_GET["id"];
         $article = Article::find($mysqli, $id)->toArray();
    
-        echo $this->responseService->success_response($article);
+        echo $this->success_response($article);
      
     }catch(Exception $e){
      
-        echo $this->responseService->error_response($e->getMessage());
+        echo $this->error_response($e->getMessage());
     }
 
        return;
